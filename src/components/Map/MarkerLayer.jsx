@@ -5,7 +5,7 @@ import { CircleMarker, Popup } from 'react-leaflet';
 const FORM_URL = 'https://example.com/form';
 
 // Googleフォームの投票場所フィールドのentry ID（本番用）
-const GOOGLE_FORM_BASE_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSeVFJFZL35FHKIPeizKDi2Ijq0GrXtUiAOI_Q7s8iFdG0fRnQ/viewform';
+const GOOGLE_FORM_BASE_URL = import.meta.env.VITE_GOOGLE_FORM_URL;
 const ENTRY_ID = 'entry.464166363';
 
 const getFormUrl = (areaNumber) =>
