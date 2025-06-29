@@ -6,10 +6,10 @@ const FORM_URL = 'https://example.com/form';
 
 // Googleフォームの投票場所フィールドのentry ID（本番用）
 const GOOGLE_FORM_BASE_URL = import.meta.env.VITE_GOOGLE_FORM_URL;
-const ENTRY_ID = 'entry.464166363';
+const LOCATION_ENTRY_ID = import.meta.env.VITE_GOOGLE_FORM_LOCATION_ENTRY_ID;
 
 const getFormUrl = (areaNumber) =>
-  `${GOOGLE_FORM_BASE_URL}?usp=pp_url&${ENTRY_ID}=${encodeURIComponent(areaNumber)}`;
+  `${GOOGLE_FORM_BASE_URL}?usp=pp_url&${LOCATION_ENTRY_ID}=${encodeURIComponent(areaNumber)}`;
 
 const getMarkerColor = (status) => {
   switch (status) {
