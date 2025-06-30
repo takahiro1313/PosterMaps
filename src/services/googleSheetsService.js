@@ -1,11 +1,27 @@
-// Google Apps Script Web APIのURL（Vercelサーバーレスプロキシ経由）
-const SHEETS_API_URL = '/api/gas-proxy';
+// const SHEETS_API_URL = '/api/gas-proxy';
+const SHEETS_API_URL = '/api/sheets-api'; // Google Sheets APIサーバーレス関数
 
 // マーカーデータ取得
 export const fetchMarkers = async () => {
+  // GAS経由
+  // const res = await fetch(SHEETS_API_URL);
+  // const data = await res.json();
+  // return data
+  //   .filter(row => row['area-number'] && row.lat && row.long)
+  //   .map((row, idx) => ({
+  //     id: idx + 1,
+  //     areaNumber: row['area-number'],
+  //     place: row.place,
+  //     address: row.adress,
+  //     lat: parseFloat(row.lat),
+  //     lng: parseFloat(row.long),
+  //     status: String(row.status),
+  //     note: row.note,
+  //   }));
+
+  // Google Sheets API経由
   const res = await fetch(SHEETS_API_URL);
   const data = await res.json();
-  // 空行を除外
   return data
     .filter(row => row['area-number'] && row.lat && row.long)
     .map((row, idx) => ({
@@ -17,6 +33,8 @@ export const fetchMarkers = async () => {
       lng: parseFloat(row.long),
       status: String(row.status),
       note: row.note,
+      city: row.city,
+      ward: row.ward,
     }));
 };
 

@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { BoardMap } from './components/BoardMap'
 import { SummaryMap } from './components/SummaryMap'
-import { VoteMap } from './components/VoteMap'
+// import { VoteMap } from './components/VoteMap'
 import { MAP_VIEWS } from './types/map'
+import Dashboard from './components/Dashboard'
 import './App.css'
 
 function App() {
@@ -14,8 +15,10 @@ function App() {
         return <BoardMap />
       case MAP_VIEWS.SUMMARY:
         return <SummaryMap />
-      case MAP_VIEWS.VOTE:
-        return <VoteMap />
+      // case MAP_VIEWS.VOTE:
+      //   return <VoteMap />
+      case MAP_VIEWS.DASHBOARD:
+        return <Dashboard />
       default:
         return <BoardMap />
     }
@@ -36,11 +39,19 @@ function App() {
         >
           進捗サマリー
         </button>
+        {/*
         <button
           className={`nav-tab ${activeView === MAP_VIEWS.VOTE ? 'active' : ''}`}
           onClick={() => setActiveView(MAP_VIEWS.VOTE)}
         >
           期日前投票所
+        </button>
+        */}
+        <button
+          className={`nav-tab ${activeView === MAP_VIEWS.DASHBOARD ? 'active' : ''}`}
+          onClick={() => setActiveView(MAP_VIEWS.DASHBOARD)}
+        >
+          ダッシュボード
         </button>
       </nav>
       

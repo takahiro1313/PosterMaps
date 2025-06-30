@@ -6,22 +6,41 @@ import { MarkerLayer } from './Map/MarkerLayer';
 import { TILE_LAYERS, DEFAULT_MAP_CONFIG } from '../utils/mapConfig';
 import { useGoogleSheetsData } from '../hooks/useGoogleSheetsData';
 import { ClipLoader } from 'react-spinners';
+import 未完了 from '../assets/未完了.svg';
+import 貼り付け完了 from '../assets/貼り付け完了.svg';
+import 破損 from '../assets/破損.svg';
+import { useMemo } from 'react';
+
+// Googleフォームのテスト用URL生成
+const GOOGLE_FORM_BASE_URL = import.meta.env.VITE_GOOGLE_FORM_URL;
+const LOCATION_ENTRY_ID = import.meta.env.VITE_GOOGLE_FORM_LOCATION_ENTRY_ID;
+const getFormUrl = (areaNumber) =>
+  `${GOOGLE_FORM_BASE_URL}?usp=pp_url&${LOCATION_ENTRY_ID}=${encodeURIComponent(areaNumber)}`;
 
 export const BoardMap = () => {
-  const [currentLayer, setCurrentLayer] = useState('google');
+  const [currentLayer] = useState('google');
   const { progressData, markers, loading, error, refreshData } = useGoogleSheetsData();
   const [fixedPopupId, setFixedPopupId] = useState(null);
-  const intervalRef = useRef();
+  const mapRef = useRef();
 
-  useEffect(() => {
-    // 5分ごとに自動更新。ただしポップアップが開いていない場合のみ
-    intervalRef.current = setInterval(() => {
-      if (!fixedPopupId) {
-        refreshData();
-      }
-    }, 300000); // 5分
-    return () => clearInterval(intervalRef.current);
-  }, [fixedPopupId, refreshData]);
+  const moveToCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      alert('お使いのブラウザは位置情報をサポートしていません。');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        if (mapRef.current) {
+          mapRef.current.setView([latitude, longitude], 16);
+        }
+      },
+      (error) => {
+        alert('現在地の取得に失敗しました');
+      },
+      { enableHighAccuracy: true }
+    );
+  };
 
   if (error) {
     return (
@@ -35,10 +54,58 @@ export const BoardMap = () => {
 
   return (
     <div className="board-map">
+      {/* 左上コントロール */}
+      <div style={{
+        position: 'absolute',
+        top: 50,
+        left: 20,
+        zIndex: 1300,
+        display: 'flex',
+        gap: 12
+      }}>
+        <button
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            background: '#fff',
+            color: '#007bff',
+            border: '1px solid #e0e0e0',
+            borderRadius: 6,
+            fontWeight: 'bold',
+            fontSize: 16,
+            padding: '8px 16px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+            cursor: 'pointer'
+          }}
+          onClick={moveToCurrentLocation}
+        >
+          📍 現在地
+        </button>
+        <button
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            background: '#fff',
+            color: '#007bff',
+            border: '1px solid #e0e0e0',
+            borderRadius: 6,
+            fontWeight: 'bold',
+            fontSize: 16,
+            padding: '8px 16px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+            cursor: 'pointer'
+          }}
+          onClick={refreshData}
+          disabled={loading}
+        >
+          🔄 更新
+        </button>
+      </div>
       <BaseMap 
         tileLayer={currentLayer} 
         center={DEFAULT_MAP_CONFIG.center}
         zoom={DEFAULT_MAP_CONFIG.zoom}
+        mapRef={mapRef}
       >
         <MarkerLayer
           key={fixedPopupId || 'nofixed'}
@@ -47,18 +114,12 @@ export const BoardMap = () => {
           setFixedPopupId={setFixedPopupId}
         />
       </BaseMap>
-      
-      <LayerControl
-        currentLayer={currentLayer}
-        onLayerChange={setCurrentLayer}
-      />
-      
       <ProgressControl
         total={progressData.total}
         completed={progressData.completed}
         percentage={progressData.percentage}
       />
-      {/* マーカー色の凡例 */}
+      {/* マーカー色の凡例（SVGアイコンで表示） */}
       <div style={{
         position: 'absolute',
         bottom: 20,
@@ -70,18 +131,40 @@ export const BoardMap = () => {
         zIndex: 1200,
         fontSize: 13
       }}>
-        <div style={{ fontWeight: 'bold', marginBottom: 6 }}>マーカー色の意味</div>
+        <div style={{ fontWeight: 'bold', marginBottom: 6 }}>マーカーの意味</div>
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
-          <span style={{ display: 'inline-block', width: 16, height: 16, background: '#ff3333', borderRadius: '50%', marginRight: 8, border: '1px solid #aaa' }}></span>
+          <img src={未完了} alt="未実施" style={{ width: 24, height: 24, marginRight: 8 }} />
           <span>未実施</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
-          <span style={{ display: 'inline-block', width: 16, height: 16, background: '#0066cc', borderRadius: '50%', marginRight: 8, border: '1px solid #aaa' }}></span>
+          <img src={貼り付け完了} alt="貼り付け済み" style={{ width: 24, height: 24, marginRight: 8 }} />
           <span>貼り付け済み</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span style={{ display: 'inline-block', width: 16, height: 16, background: '#ff9900', borderRadius: '50%', marginRight: 8, border: '1px solid #aaa' }}></span>
+          <img src={破損} alt="破損" style={{ width: 24, height: 24, marginRight: 8 }} />
           <span>破損</span>
+        </div>
+        {/* テスト用Googleフォーム遷移リンク */}
+        <div style={{ marginTop: 16, textAlign: 'center' }}>
+          <a
+            href={getFormUrl('1001')}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-block',
+              padding: '6px 12px',
+              backgroundColor: '#4285f4',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '4px',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              marginTop: 8
+            }}
+          >
+            📝 テスト用フォーム遷移
+          </a>
         </div>
       </div>
       {/* マーカーだけローディング中インジケータ（スピナー） */}
