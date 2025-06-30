@@ -76,33 +76,16 @@ export const BoardMap = () => {
             border: '1px solid #e0e0e0',
             borderRadius: 6,
             fontWeight: 'bold',
-            fontSize: 16,
-            padding: '8px 16px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-            cursor: 'pointer'
-          }}
-          onClick={moveToCurrentLocation}
-        >
-          📍 現在地
-        </button>
-        <button
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            background: '#fff',
-            color: '#007bff',
-            border: '1px solid #e0e0e0',
-            borderRadius: 6,
-            fontWeight: 'bold',
-            fontSize: 16,
-            padding: '8px 16px',
+            fontSize: 13,
+            padding: '8px 32px',
+            width: 210,
             boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
             cursor: 'pointer'
           }}
           onClick={refreshData}
           disabled={loading}
         >
-          🔄 更新
+          🔄 仲間の努力を反映👏
         </button>
       </div>
       <BaseMap 
