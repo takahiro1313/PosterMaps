@@ -126,7 +126,7 @@ export const BoardMap = () => {
       <div style={{
         position: 'absolute',
         top: 10,
-        right: 20,
+        right: 10,
         height: 135,
         background: 'white',
         borderRadius: 6,

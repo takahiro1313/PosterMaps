@@ -59,9 +59,17 @@ export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom =
   const [currentLocation, setCurrentLocation] = React.useState(null);
   const [locationError, setLocationError] = React.useState(null);
   const [heading, setHeading] = React.useState(null);
+  const [locationEnabled, setLocationEnabled] = React.useState(false);
+  const [showLocationModal, setShowLocationModal] = React.useState(true);
 
-  // 現在地の常時取得＆自動追従
+  // 初回のみ位置情報利用の許可を確認
   React.useEffect(() => {
+    // ページ初回表示時のみモーダル表示（デフォルトtrue）
+  }, []);
+
+  // 現在地の常時取得＆自動追従（許可時のみ）
+  React.useEffect(() => {
+    if (!locationEnabled) return;
     if (!navigator.geolocation) {
       setLocationError('お使いのブラウザは位置情報をサポートしていません。');
       return;
@@ -82,22 +90,65 @@ export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom =
       { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
     );
     return () => navigator.geolocation.clearWatch(watchId);
-  }, [mapRef]);
+  }, [locationEnabled, mapRef]);
 
-  // 端末の向き（方角）を取得
+  // 端末の向き（方角）を取得（許可時のみ）
   React.useEffect(() => {
+    if (!locationEnabled) return;
     const handleOrientation = (event) => {
-      // alpha: 北を0度とした方角
       if (typeof event.alpha === 'number') {
         setHeading(event.alpha);
       }
     };
     window.addEventListener('deviceorientation', handleOrientation, true);
     return () => window.removeEventListener('deviceorientation', handleOrientation);
-  }, []);
+  }, [locationEnabled]);
 
   return (
     <div style={{ position: 'relative', height: '100vh', width: '100%' }}>
+      {/* 位置情報利用確認モーダル */}
+      {showLocationModal && (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.35)',
+          zIndex: 2000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: 8,
+            padding: '32px 24px',
+            boxShadow: '0 2px 16px rgba(0,0,0,0.18)',
+            textAlign: 'center',
+            minWidth: 280
+          }}>
+            <div style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>位置情報の利用</div>
+            <div style={{ fontSize: 15, marginBottom: 24 }}>現在地を地図上に表示するため、位置情報の利用を許可してください。</div>
+            <button
+              style={{
+                background: '#007bff', color: 'white', border: 'none', borderRadius: 4, padding: '10px 28px', fontSize: 16, fontWeight: 'bold', cursor: 'pointer', marginRight: 12
+              }}
+              onClick={() => { setLocationEnabled(true); setShowLocationModal(false); }}
+            >
+              許可する
+            </button>
+            <button
+              style={{
+                background: '#eee', color: '#333', border: 'none', borderRadius: 4, padding: '10px 18px', fontSize: 15, fontWeight: 'bold', cursor: 'pointer'
+              }}
+              onClick={() => { setLocationEnabled(false); setShowLocationModal(false); }}
+            >
+              許可しない
+            </button>
+          </div>
+        </div>
+      )}
       <MapContainer
         center={center}
         zoom={zoom}
@@ -114,7 +165,8 @@ export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom =
           url={selectedTileLayer.url}
           attribution={selectedTileLayer.attribution}
         />
-        <CurrentLocationMarker location={currentLocation} heading={heading} />
+        {/* 許可時のみ現在地マーカーを表示 */}
+        {locationEnabled && <CurrentLocationMarker location={currentLocation} heading={heading} />}
         {children}
       </MapContainer>
       {locationError && (
