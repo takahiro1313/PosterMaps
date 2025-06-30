@@ -62,7 +62,7 @@ export const BoardMap = () => {
       <div style={{
         position: 'absolute',
         top: 10,
-        left: 20,
+        left: 10,
         zIndex: 1300,
         display: 'flex',
         gap: 12
@@ -120,13 +120,14 @@ export const BoardMap = () => {
         total={progressData.total}
         completed={progressData.completed}
         percentage={progressData.percentage}
-        style={{ position: 'absolute', left: 20, bottom: 60, top: 'auto', zIndex: 1200 }}
+        style={{ position: 'absolute', left: 10, top: 60, zIndex: 1200, width: 210}}
       />
       {/* マーカー色の凡例（SVGアイコンで表示） */}
       <div style={{
         position: 'absolute',
         top: 10,
         right: 20,
+        height: 135,
         background: 'white',
         borderRadius: 6,
         boxShadow: '0 2px 8px rgba(0,0,0,0.12)',

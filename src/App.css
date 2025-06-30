@@ -86,7 +86,7 @@
 
 .progress-control {
   position: absolute;
-  bottom: 10px;
+  top: 100px;
   left: 10px;
   background: white;
   border-radius: 4px;
@@ -210,5 +210,8 @@
   
   .progress-control {
     min-width: 160px;
+    top: 10px;
+    left: 10px;
+    bottom: unset;
   }
 }
