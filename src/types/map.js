@@ -29,5 +29,6 @@
 export const MAP_VIEWS = {
   BOARD: 'board',
   SUMMARY: 'summary',
-  VOTE: 'vote'
+  VOTE: 'vote',
+  DASHBOARD: 'dashboard',
 };

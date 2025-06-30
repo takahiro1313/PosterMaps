@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { CircleMarker, Popup } from 'react-leaflet';
-
-// フォームURLは固定
-const FORM_URL = 'https://example.com/form';
+import { Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 未完了 from '../../assets/未完了.svg';
+import 貼り付け完了 from '../../assets/貼り付け完了.svg';
+import 破損 from '../../assets/破損.svg';
 
 // Googleフォームの投票場所フィールドのentry ID（本番用）
 const GOOGLE_FORM_BASE_URL = import.meta.env.VITE_GOOGLE_FORM_URL;
@@ -25,6 +26,23 @@ const getStatusText = (status) => {
     case '1': return '貼り付け済';
     case '2': return '破損';
     default:  return '未実施';
+  }
+};
+
+// SVGアイコンをLeafletアイコンとして生成
+const svgIcon = (svgPath) => L.icon({
+  iconUrl: svgPath,
+  iconSize: [32, 32], // 必要に応じて調整
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
+const getMarkerIcon = (status) => {
+  switch (status) {
+    case '0': return svgIcon(未完了);
+    case '1': return svgIcon(貼り付け完了);
+    case '2': return svgIcon(破損);
+    default:  return svgIcon(未完了);
   }
 };
 
@@ -66,16 +84,10 @@ export const MarkerLayer = ({ markers, fixedPopupId, setFixedPopupId }) => {
         const [lat, lng] = key.split(',').map(Number);
         const isFixed = fixedPopupId === key;
         return (
-          <CircleMarker
+          <Marker
             key={key}
-            center={[lat, lng]}
-            radius={8}
-            pathOptions={{
-              color: getMarkerColor(group[0].status),
-              fillColor: getMarkerColor(group[0].status),
-              fillOpacity: 0.8,
-              weight: 2
-            }}
+            position={[lat, lng]}
+            icon={getMarkerIcon(group[0].status)}
             eventHandlers={{
               mouseover: (e) => {
                 if (!isFixed) e.target.openPopup();
@@ -149,7 +161,7 @@ export const MarkerLayer = ({ markers, fixedPopupId, setFixedPopupId }) => {
                 ))}
               </div>
             </Popup>
-          </CircleMarker>
+          </Marker>
         );
       })}
     </>
