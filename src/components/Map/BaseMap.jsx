@@ -29,6 +29,7 @@ const CurrentLocationMarker = ({ location, heading }) => {
   if (!location) return null;
   return (
     <Marker
+      key={heading}
       position={[location.lat, location.lng]}
       icon={ArrowIcon(heading || 0)}
     >
