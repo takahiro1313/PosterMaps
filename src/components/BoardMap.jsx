@@ -10,6 +10,7 @@ import 未完了 from '../assets/未完了.svg';
 import 貼り付け完了 from '../assets/貼り付け完了.svg';
 import 破損 from '../assets/破損.svg';
 import { useMemo } from 'react';
+import BoardDetailDrawer from './Map/BoardDetailDrawer';
 
 // Googleフォームのテスト用URL生成
 const GOOGLE_FORM_BASE_URL = import.meta.env.VITE_GOOGLE_FORM_URL;
@@ -22,6 +23,9 @@ export const BoardMap = () => {
   const { progressData, markers, loading, error, refreshData } = useGoogleSheetsData();
   const [fixedPopupId, setFixedPopupId] = useState(null);
   const mapRef = useRef();
+  const [selectedMarkerGroup, setSelectedMarkerGroup] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [activePopup, setActivePopup] = useState(null);
 
   const moveToCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -53,11 +57,11 @@ export const BoardMap = () => {
   }
 
   return (
-    <div className="board-map">
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       {/* 左上コントロール */}
       <div style={{
         position: 'absolute',
-        top: 50,
+        top: 10,
         left: 20,
         zIndex: 1300,
         display: 'flex',
@@ -108,21 +112,20 @@ export const BoardMap = () => {
         mapRef={mapRef}
       >
         <MarkerLayer
-          key={fixedPopupId || 'nofixed'}
           markers={markers}
-          fixedPopupId={fixedPopupId}
-          setFixedPopupId={setFixedPopupId}
+          mapRef={mapRef}
         />
       </BaseMap>
       <ProgressControl
         total={progressData.total}
         completed={progressData.completed}
         percentage={progressData.percentage}
+        style={{ position: 'absolute', left: 20, bottom: 60, top: 'auto', zIndex: 1200 }}
       />
       {/* マーカー色の凡例（SVGアイコンで表示） */}
       <div style={{
         position: 'absolute',
-        bottom: 20,
+        top: 10,
         right: 20,
         background: 'white',
         borderRadius: 6,
@@ -144,34 +147,12 @@ export const BoardMap = () => {
           <img src={破損} alt="破損" style={{ width: 24, height: 24, marginRight: 8 }} />
           <span>破損</span>
         </div>
-        {/* テスト用Googleフォーム遷移リンク */}
-        <div style={{ marginTop: 16, textAlign: 'center' }}>
-          <a
-            href={getFormUrl('1001')}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-block',
-              padding: '6px 12px',
-              backgroundColor: '#4285f4',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '4px',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              marginTop: 8
-            }}
-          >
-            📝 テスト用フォーム遷移
-          </a>
-        </div>
       </div>
       {/* マーカーだけローディング中インジケータ（スピナー） */}
       {loading && (
         <div style={{
           position: 'absolute',
-          top: 20,
+          top: 0,
           left: '50%',
           transform: 'translateX(-50%)',
           background: 'rgba(255,255,255,0.95)',
@@ -189,6 +170,15 @@ export const BoardMap = () => {
           <ClipLoader color="#007bff" size={40} />
           <div style={{ marginTop: 12 }}>マーカー読み込み中...</div>
         </div>
+      )}
+      {/* サイドパネル（詳細Drawer） */}
+      <BoardDetailDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        markerGroup={selectedMarkerGroup}
+      />
+      {activePopup && (
+        null
       )}
     </div>
   );

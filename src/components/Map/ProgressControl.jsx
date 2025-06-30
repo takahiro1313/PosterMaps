@@ -3,10 +3,11 @@ import React from 'react';
 export const ProgressControl = ({
   total,
   completed,
-  percentage
+  percentage,
+  style
 }) => {
   return (
-    <div className="progress-control">
+    <div className="progress-control" style={style}>
       <div className="progress-info">
         <div className="progress-title">進捗状況</div>
         <div className="progress-stats">

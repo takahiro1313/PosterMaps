@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { MapContainer, TileLayer, useMap, CircleMarker, Popup, Marker } from 'react-leaflet';
 import L from 'leaflet';
 import { DEFAULT_MAP_CONFIG, TILE_LAYERS } from '../../utils/mapConfig';
@@ -41,16 +41,10 @@ const CurrentLocationMarker = ({ location }) => {
   );
 };
 
-export const BaseMap = ({
-  children,
-  center = [34.6937, 135.5023],
-  zoom = 12,
-  tileLayer = 'google',
-  mapRef
-}) => {
+export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom = 12, tileLayer = 'google', ...props }) => {
   const selectedTileLayer = TILE_LAYERS[tileLayer];
-  const [currentLocation, setCurrentLocation] = useState(null);
-  const [locationError, setLocationError] = useState(null);
+  const [currentLocation, setCurrentLocation] = React.useState(null);
+  const [locationError, setLocationError] = React.useState(null);
 
   const handleLocationFound = (location) => {
     setCurrentLocation(location);
@@ -69,7 +63,14 @@ export const BaseMap = ({
         zoom={zoom}
         style={{ height: '100%', width: '100%' }}
         zoomControl={false}
-        whenCreated={mapInstance => { if (mapRef) mapRef.current = mapInstance; }}
+        whenCreated={mapInstance => {
+          console.log('Map created:', mapInstance);
+          if (mapRef) {
+            mapRef.current = mapInstance;
+            console.log('mapRef after set:', mapRef);
+          }
+        }}
+        {...props}
       >
         <TileLayer
           url={selectedTileLayer.url}
