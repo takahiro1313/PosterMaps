@@ -215,3 +215,12 @@
     bottom: unset;
   }
 }
+
+/* 現在地アイコンの回転スタイル */
+.current-location-icon {
+  transition: transform 0.3s ease;
+}
+
+.current-location-icon img {
+  transition: transform 0.3s ease;
+}

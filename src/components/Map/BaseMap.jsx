@@ -13,25 +13,39 @@ const ArrowSVG = ({ rotation = 0 }) => (
   </svg>
 );
 
-// 現在地マーカーのアイコン（SVGを使う）
-const ArrowIcon = (rotation = 0) => L.divIcon({
-  className: '',
-  html: `<div style="transform: rotate(${rotation}deg); width:48px; height:48px; display:flex; align-items:center; justify-content:center;">`
-    + `<svg width='48' height='48' viewBox='0 0 48 48'><polygon points='24,6 30,30 24,24 18,30' fill='#4285F4' stroke='#333' stroke-width='2'/><circle cx='24' cy='36' r='4' fill='#4285F4' stroke='#333' stroke-width='2'/></svg>`
-    + `</div>`,
-  iconSize: [128, 128],
-  iconAnchor: [24, 24],
-  popupAnchor: [0, -24]
+// 現在地マーカーのアイコン（現在地.svgファイルを使用）
+const CurrentLocationIcon = () => L.icon({
+  iconUrl: 現在地,
+  iconSize: [90, 90], // 現在地.svgを48x48で表示
+  iconAnchor: [24, 24], // 中心をアンカーポイントに
+  popupAnchor: [0, -24],
+  className: 'current-location-icon'
 });
 
 // 現在地マーカーコンポーネント
 const CurrentLocationMarker = ({ location, heading }) => {
+  const markerRef = React.useRef(null);
+
+  // 回転を適用
+  React.useEffect(() => {
+    if (markerRef.current && heading !== null) {
+      const iconElement = markerRef.current.getElement();
+      if (iconElement) {
+        const imgElement = iconElement.querySelector('img');
+        if (imgElement) {
+          imgElement.style.transform = `rotate(${heading}deg)`;
+        }
+      }
+    }
+  }, [heading]);
+
   if (!location) return null;
   return (
     <Marker
-      key={heading}
+      ref={markerRef}
+      key={`${location.lat}-${location.lng}`}
       position={[location.lat, location.lng]}
-      icon={ArrowIcon(heading || 0)}
+      icon={CurrentLocationIcon()}
     >
       <Popup>
         <div style={{ textAlign: 'center' }}>
