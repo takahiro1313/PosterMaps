@@ -19,7 +19,7 @@ const ArrowIcon = (rotation = 0) => L.divIcon({
   html: `<div style="transform: rotate(${rotation}deg); width:48px; height:48px; display:flex; align-items:center; justify-content:center;">`
     + `<svg width='48' height='48' viewBox='0 0 48 48'><polygon points='24,6 30,30 24,24 18,30' fill='#4285F4' stroke='#333' stroke-width='2'/><circle cx='24' cy='36' r='4' fill='#4285F4' stroke='#333' stroke-width='2'/></svg>`
     + `</div>`,
-  iconSize: [48, 48],
+  iconSize: [128, 128],
   iconAnchor: [24, 24],
   popupAnchor: [0, -24]
 });
