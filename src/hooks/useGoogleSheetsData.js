@@ -27,14 +27,14 @@ export const useGoogleSheetsData = () => {
         latestMarkersMap[row.areaNumber] = row; // 後勝ちで最新
       });
       const latestMarkers = Object.values(latestMarkersMap);
-      // 5件ずつインクリメンタルにsetMarkers
+      // 10件ずつインクリメンタルにsetMarkers（高速化）
       setMarkers([]);
       let i = 0;
       function addBatch() {
-        setMarkers(prev => [...prev, ...latestMarkers.slice(i, i+5)]);
-        i += 5;
+        setMarkers(prev => [...prev, ...latestMarkers.slice(i, i+10)]);
+        i += 10;
         if (i < latestMarkers.length) {
-          incrementalTimeout.current = setTimeout(addBatch, 100);
+          incrementalTimeout.current = setTimeout(addBatch, 50); // 50msに短縮
         }
       }
       addBatch();

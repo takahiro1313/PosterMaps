@@ -70,14 +70,15 @@ export const BoardMap = () => {
         <button
           style={{
             display: 'inline-flex',
-            alignItems: 'center',
-            background: '#fff',
-            color: '#007bff',
+            // alignItems: 'center',
+            justifyContent: 'center',
+            background: '#696969',//#fff
+            color: '#ffffff',//#007bff
             border: '1px solid #e0e0e0',
             borderRadius: 6,
             fontWeight: 'bold',
-            fontSize: 13,
-            padding: '8px 32px',
+            fontSize: 18,
+            padding: '8px',
             width: 210,
             boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
             cursor: 'pointer'
@@ -85,7 +86,7 @@ export const BoardMap = () => {
           onClick={refreshData}
           disabled={loading}
         >
-          🔄 仲間の努力を反映👏
+        地図を更新する ▷
         </button>
       </div>
       <BaseMap 

@@ -32,7 +32,8 @@ const getStatusText = (status) => {
 // SVGアイコンをLeafletアイコンとして生成
 const svgIcon = (svgPath) => L.icon({
   iconUrl: svgPath,
-  iconSize: [32, 32], // 必要に応じて調整
+  // iconSize: [32, 32], // 必要に応じて調整
+  iconSize: [64, 64], 
   iconAnchor: [16, 32],
   popupAnchor: [0, -32],
 });
