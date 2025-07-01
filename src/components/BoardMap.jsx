@@ -163,7 +163,7 @@ export const BoardMap = () => {
           onClick={refreshData}
           disabled={loading}
         >
-          仲間の努力を反映
+          地図を更新する
         </button>
         <ProgressControl
         total={progressData.total}
