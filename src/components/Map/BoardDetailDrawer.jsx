@@ -7,6 +7,8 @@ import Button from '@mui/material/Button';
 export default function BoardDetailDrawer({ open, onClose, markerGroup }) {
   if (!markerGroup) return null;
   const [lat, lng] = [markerGroup[0].lat, markerGroup[0].lng];
+  const getFormUrl = (areaNumber) =>
+    `${GOOGLE_FORM_BASE_URL}?usp=pp_url&${LOCATION_ENTRY_ID}=${encodeURIComponent(areaNumber)}`;
   return (
     <Drawer
       anchor="right"
@@ -38,7 +40,7 @@ export default function BoardDetailDrawer({ open, onClose, markerGroup }) {
           <Button
             variant="contained"
             color="primary"
-            href={marker.formUrl}
+            href={getFormUrl(marker.areaNumber)}
             target="_blank"
             rel="noopener noreferrer"
             startIcon={<span role="img" aria-label="form">📝</span>}

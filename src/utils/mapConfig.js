@@ -18,7 +18,7 @@ export const TILE_LAYERS = {
 
 export const DEFAULT_MAP_CONFIG = {
   center: [34.6937, 135.5023],
-  zoom: 16,
+  zoom: 11,
   minZoom: 5,
   maxZoom: 21,
   tileLayer: 'google'

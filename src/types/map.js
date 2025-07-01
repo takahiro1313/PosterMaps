@@ -31,4 +31,5 @@ export const MAP_VIEWS = {
   SUMMARY: 'summary',
   VOTE: 'vote',
   DASHBOARD: 'dashboard',
+  REGION: 'region',
 };

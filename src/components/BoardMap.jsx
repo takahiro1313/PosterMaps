@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { BaseMap } from './Map/BaseMap';
 import { LayerControl } from './Map/LayerControl';
 import { ProgressControl } from './Map/ProgressControl';
 import { MarkerLayer } from './Map/MarkerLayer';
 import { TILE_LAYERS, DEFAULT_MAP_CONFIG } from '../utils/mapConfig';
-import { useGoogleSheetsData } from '../hooks/useGoogleSheetsData';
+import { useGoogleSheetsDataContext } from '../contexts/GoogleSheetsDataContext';
 import { ClipLoader } from 'react-spinners';
 import 未完了 from '../assets/未完了.svg';
 import 貼り付け完了 from '../assets/貼り付け完了.svg';
 import 破損 from '../assets/破損.svg';
-import { useMemo } from 'react';
+import { areaMaster } from '../data/areaMaster';
 import BoardDetailDrawer from './Map/BoardDetailDrawer';
 
 // Googleフォームのテスト用URL生成
@@ -20,12 +20,40 @@ const getFormUrl = (areaNumber) =>
 
 export const BoardMap = () => {
   const [currentLayer] = useState('google');
-  const { progressData, markers, loading, error, refreshData } = useGoogleSheetsData();
+  const { progressData, markers, loading, error, refreshData } = useGoogleSheetsDataContext();
   const [fixedPopupId, setFixedPopupId] = useState(null);
   const mapRef = useRef();
   const [selectedMarkerGroup, setSelectedMarkerGroup] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activePopup, setActivePopup] = useState(null);
+  // フィルタ用state
+  const [showOnlyUnfinished, setShowOnlyUnfinished] = useState(false);
+  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedWard, setSelectedWard] = useState('');
+
+  // city+wardプルダウン用データ
+  const cityWardOptions = useMemo(() => {
+    return areaMaster
+      .filter(a => a.city && a.ward)
+      .map(a => ({
+        value: `${a.city}|${a.ward}`,
+        label: `${a.city}${a.ward}`
+      }));
+  }, []);
+  const [selectedCityWard, setSelectedCityWard] = useState('');
+
+  // markersフィルタリング
+  const filteredMarkers = useMemo(() => {
+    let result = markers;
+    if (showOnlyUnfinished) {
+      result = result.filter(m => m.status === '0');
+    }
+    if (selectedCityWard) {
+      const [city, ward] = selectedCityWard.split('|');
+      result = result.filter(m => m.city === city && m.ward === ward);
+    }
+    return result;
+  }, [markers, showOnlyUnfinished, selectedCityWard]);
 
   const moveToCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -58,36 +86,91 @@ export const BoardMap = () => {
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      {/* 左上コントロール */}
+      {/* 右上フィルタUI */}
       <div style={{
         position: 'absolute',
-        top: 10,
-        left: 10,
+        width: '45%',
+        top: 66,
+        right: 10,
         zIndex: 1300,
         display: 'flex',
-        gap: 12
+        flexDirection: 'column',
+        gap: 12,
+        background: 'rgba(255,255,255,0.95)',
+        borderRadius: 8,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+        padding: 8
       }}>
         <button
           style={{
             display: 'inline-flex',
-            // alignItems: 'center',
-            justifyContent: 'center',
-            background: '#696969',//#fff
-            color: '#ffffff',//#007bff
+            alignItems: 'center',
+            background: showOnlyUnfinished ? '#007bff' : '#fff',
+            color: showOnlyUnfinished ? '#fff' : '#007bff',
             border: '1px solid #e0e0e0',
             borderRadius: 6,
             fontWeight: 'bold',
-            fontSize: 18,
-            padding: '8px',
-            width: 210,
+            fontSize: 12,
+            padding: '8px 16px',
+            width: '100%',
             boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            marginBottom: 4
+          }}
+          onClick={() => setShowOnlyUnfinished(v => !v)}
+        >
+          {showOnlyUnfinished ? 'すべて表示' : '未実施のみ表示'}
+        </button>
+        <select
+          value={selectedCityWard}
+          onChange={e => setSelectedCityWard(e.target.value)}
+          style={{ width: '100%', marginBottom: 4 }}
+        >
+          <option value="">市区を選択</option>
+          {cityWardOptions.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
+      {/* 左上：更新ボタン */}
+      <div style={{
+        position: 'absolute',
+        top: 65,
+        left: 10,
+        zIndex: 1300,
+        width: '45%',
+        background: 'rgba(255,255,255,0.95)',
+        borderRadius: 8,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+        padding: 12
+      }}>
+        <button
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#696969',
+            color: '#fff',
+            border: '1px solid #e0e0e0',
+            borderRadius: 6,
+            fontWeight: 'bold',
+            fontSize: 12,
+            padding: '8px 8px',
+            width: '100%',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+            cursor: 'pointer',
           }}
           onClick={refreshData}
           disabled={loading}
         >
-        地図を更新する ▷
+          仲間の努力を反映
         </button>
+        <ProgressControl
+        total={progressData.total}
+        completed={progressData.completed}
+        percentage={progressData.percentage}
+        style={{ position: 'absolute', left: 0, top: 65, zIndex: 1200, width: '100%'}}
+      />
       </div>
       <BaseMap 
         tileLayer={currentLayer} 
@@ -96,21 +179,16 @@ export const BoardMap = () => {
         mapRef={mapRef}
       >
         <MarkerLayer
-          markers={markers}
+          markers={filteredMarkers}
           mapRef={mapRef}
         />
       </BaseMap>
-      <ProgressControl
-        total={progressData.total}
-        completed={progressData.completed}
-        percentage={progressData.percentage}
-        style={{ position: 'absolute', left: 10, top: 60, zIndex: 1200, width: 210}}
-      />
-      {/* マーカー色の凡例（SVGアイコンで表示） */}
+
+      {/* 左下：マーカー説明（凡例） */}
       <div style={{
         position: 'absolute',
-        top: 10,
-        right: 10,
+        left: 10,
+        bottom: 10,
         height: 135,
         background: 'white',
         borderRadius: 6,
@@ -137,7 +215,7 @@ export const BoardMap = () => {
       {loading && (
         <div style={{
           position: 'absolute',
-          top: 0,
+          top: '50%',
           left: '50%',
           transform: 'translateX(-50%)',
           background: 'rgba(255,255,255,0.95)',
