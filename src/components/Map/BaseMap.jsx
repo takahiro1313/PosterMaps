@@ -5,33 +5,21 @@ import { DEFAULT_MAP_CONFIG, TILE_LAYERS } from '../../utils/mapConfig';
 import 'leaflet/dist/leaflet.css';
 import 現在地 from '../../assets/現在地.svg';
 
-// 矢印SVG（北向き）
-const ArrowSVG = ({ rotation = 0 }) => (
-  <svg width="48" height="48" viewBox="0 0 48 48" style={{ transform: `rotate(${rotation}deg)` }}>
-    <polygon points="24,6 30,30 24,24 18,30" fill="#4285F4" stroke="#333" strokeWidth="2" />
-    <circle cx="24" cy="36" r="4" fill="#4285F4" stroke="#333" strokeWidth="2" />
-  </svg>
-);
-
-// 現在地マーカーのアイコン（SVGを使う）
-const ArrowIcon = (rotation = 0) => L.divIcon({
-  className: '',
-  html: `<div style="transform: rotate(${rotation}deg); width:48px; height:48px; display:flex; align-items:center; justify-content:center;">`
-    + `<svg width='48' height='48' viewBox='0 0 48 48'><polygon points='24,6 30,30 24,24 18,30' fill='#4285F4' stroke='#333' stroke-width='2'/><circle cx='24' cy='36' r='4' fill='#4285F4' stroke='#333' stroke-width='2'/></svg>`
-    + `</div>`,
-  iconSize: [48, 48],
-  iconAnchor: [24, 24],
+// 現在地マーカーのアイコン（SVGファイルを使う）
+const CurrentLocationIcon = L.icon({
+  iconUrl: 現在地,
+  iconSize: [72, 72],
+  iconAnchor: [30, 30],
   popupAnchor: [0, -24]
 });
 
 // 現在地マーカーコンポーネント
-const CurrentLocationMarker = ({ location, heading }) => {
+const CurrentLocationMarker = ({ location }) => {
   if (!location) return null;
   return (
     <Marker
-      key={heading}
       position={[location.lat, location.lng]}
-      icon={ArrowIcon(heading || 0)}
+      icon={CurrentLocationIcon}
     >
       <Popup>
         <div style={{ textAlign: 'center' }}>
@@ -44,11 +32,6 @@ const CurrentLocationMarker = ({ location, heading }) => {
           <p style={{ margin: '4px 0', fontSize: '12px' }}>
             経度: {location.lng.toFixed(6)}
           </p>
-          {heading !== null && (
-            <p style={{ margin: '4px 0', fontSize: '12px' }}>
-              方角: {Math.round(heading)}°
-            </p>
-          )}
         </div>
       </Popup>
     </Marker>
@@ -127,7 +110,8 @@ export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom =
             padding: '32px 24px',
             boxShadow: '0 2px 16px rgba(0,0,0,0.18)',
             textAlign: 'center',
-            minWidth: 280
+            minWidth: 280,
+            width: '80%'
           }}>
             <div style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>位置情報の利用</div>
             <div style={{ fontSize: 15, marginBottom: 24 }}>現在地を地図上に表示するため、位置情報の利用を許可してください。</div>
@@ -169,7 +153,7 @@ export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom =
           maxZoom={21}
         />
         {/* 許可時のみ現在地マーカーを表示 */}
-        {locationEnabled && <CurrentLocationMarker location={currentLocation} heading={heading} />}
+        {locationEnabled && <CurrentLocationMarker location={currentLocation} />}
         {children}
       </MapContainer>
       {locationError && (

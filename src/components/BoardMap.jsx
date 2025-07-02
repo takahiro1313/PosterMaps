@@ -20,7 +20,7 @@ const getFormUrl = (areaNumber) =>
 
 export const BoardMap = () => {
   const [currentLayer] = useState('google');
-  const { progressData, markers, loading, error, refreshData } = useGoogleSheetsDataContext();
+  const { progressSheet, markers, loading, error, refreshData } = useGoogleSheetsDataContext();
   const [fixedPopupId, setFixedPopupId] = useState(null);
   const mapRef = useRef();
   const [selectedMarkerGroup, setSelectedMarkerGroup] = useState(null);
@@ -33,12 +33,21 @@ export const BoardMap = () => {
 
   // city+wardプルダウン用データ
   const cityWardOptions = useMemo(() => {
+    // 大阪市・堺市は区単位、松原市は市単位のみ
     return areaMaster
-      .filter(a => a.city && a.ward)
+      .filter(a =>
+        (a.city === '大阪市' && a.ward) ||
+        (a.city === '堺市' && a.ward) ||
+        (a.city === '松原市' && !a.ward)
+      )
       .map(a => ({
-        value: `${a.city}|${a.ward}`,
-        label: `${a.city}${a.ward}`
-      }));
+        value: `${a.city}|${a.ward ?? ''}`,
+        label: a.ward ? `${a.city}${a.ward}` : a.city
+      }))
+      // 重複除去
+      .filter((opt, idx, arr) =>
+        arr.findIndex(o => o.value === opt.value) === idx
+      );
   }, []);
   const [selectedCityWard, setSelectedCityWard] = useState('');
 
@@ -54,6 +63,15 @@ export const BoardMap = () => {
     }
     return result;
   }, [markers, showOnlyUnfinished, selectedCityWard]);
+
+  // --- 進捗率（大阪市・堺市・松原市のみ） ---
+  const targetCities = ['大阪市', '堺市', '松原市'];
+  const filteredProgress = progressSheet
+    ? progressSheet.filter(p => targetCities.includes((p.city || '').trim()))
+    : [];
+  const total = filteredProgress.reduce((sum, p) => sum + (Number(p.total) || 0), 0);
+  const completed = filteredProgress.reduce((sum, p) => sum + (Number(p.done) || 0), 0);
+  const percentage = total > 0 ? (completed / total) * 100 : 0;
 
   const moveToCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -105,6 +123,7 @@ export const BoardMap = () => {
           style={{
             display: 'inline-flex',
             alignItems: 'center',
+            justifyContent: 'center',
             background: showOnlyUnfinished ? '#007bff' : '#fff',
             color: showOnlyUnfinished ? '#fff' : '#007bff',
             border: '1px solid #e0e0e0',
@@ -119,7 +138,7 @@ export const BoardMap = () => {
           }}
           onClick={() => setShowOnlyUnfinished(v => !v)}
         >
-          {showOnlyUnfinished ? 'すべて表示' : '未実施のみ表示'}
+          {showOnlyUnfinished ? '未実施のみ表示' : '未実施のみ表示'}
         </button>
         <select
           value={selectedCityWard}
@@ -163,14 +182,14 @@ export const BoardMap = () => {
           onClick={refreshData}
           disabled={loading}
         >
-          地図を更新する
+          地図情報を更新する
         </button>
         <ProgressControl
-        total={progressData.total}
-        completed={progressData.completed}
-        percentage={progressData.percentage}
-        style={{ position: 'absolute', left: 0, top: 65, zIndex: 1200, width: '100%'}}
-      />
+          total={total}
+          completed={completed}
+          percentage={percentage}
+          style={{ position: 'absolute', left: 0, top: 65, zIndex: 1200, width: '100%'}}
+        />
       </div>
       <BaseMap 
         tileLayer={currentLayer} 
@@ -188,7 +207,7 @@ export const BoardMap = () => {
       <div style={{
         position: 'absolute',
         left: 10,
-        bottom: 10,
+        bottom: 60,
         height: 135,
         background: 'white',
         borderRadius: 6,

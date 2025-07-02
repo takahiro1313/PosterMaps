@@ -77,20 +77,20 @@ export const MarkerLayer = ({ markers }) => {
   let mode = 'individual';
   let iconSize = 32;
   if (zoom <= 11) {
-    // region単位（大阪市・堺市のみ）
+    // region単位（大阪市・堺市・松原市のみ）
     mode = 'region';
-    iconSize = 77; // 32*2.4
+    iconSize = 85; // 32*2.4
     displayMarkers = Object.entries(regionCenters)
-      .filter(([region]) => region === '大阪市' || region === '堺市')
+      .filter(([region]) => region === '大阪市' || region === '堺市' || region === '松原市')
       .map(([region, pos]) => ({
         lat: pos.lat, lng: pos.lng, status: '0', region
       })).filter(m => m.lat && m.lng);
-  } else if (zoom <= 13) {
-    // city+ward単位（大阪市・堺市のみ）
+  } else if (zoom <= 12) {
+    // city+ward単位（大阪市・堺市・松原市のみ）
     mode = 'cityward';
-    iconSize = 58; // 32*1.8
+    iconSize = 64; // 32*1.8
     displayMarkers = areaMaster
-      .filter(area => area.city === '大阪市' || area.city === '堺市')
+      .filter(area => (area.city === '大阪市' || area.city === '堺市') || (area.city === '松原市' && !area.ward))
       .map(area => {
         const key = area.city + '_' + (area.ward || '');
         const pos = cityWardCenters[key];
@@ -99,7 +99,7 @@ export const MarkerLayer = ({ markers }) => {
   } else {
     // 個別ピン
     mode = 'individual';
-    iconSize = 32;
+    iconSize = 48;
     displayMarkers = markers;
   }
 

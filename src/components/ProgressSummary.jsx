@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGoogleSheetsDataContext } from '../contexts/GoogleSheetsDataContext';
 import { areaMaster } from '../data/areaMaster';
+import dayjs from 'dayjs';
 
 function CircularProgress({ percent, size = 120, stroke = 10 }) {
   const radius = (size - stroke) / 2;
@@ -29,7 +30,7 @@ function CircularProgress({ percent, size = 120, stroke = 10 }) {
         strokeDasharray={circumference}
         strokeDashoffset={offset}
         strokeLinecap="round"
-        style={{ transition: 'stroke-dashoffset 0.5s' }}
+        style={{ transition: 'stroke-dashoffset 0.5s', transform: `rotate(-90deg)`, transformOrigin: '50% 50%' }}
       />
       {/* 中央のテキスト */}
       <text
@@ -50,6 +51,13 @@ function CircularProgress({ percent, size = 120, stroke = 10 }) {
 export default function ProgressSummary() {
   const { progressSheet } = useGoogleSheetsDataContext();
   const [selectedRegion, setSelectedRegion] = useState('すべて');
+  const [lastUpdated, setLastUpdated] = useState(null);
+
+  useEffect(() => {
+    if (progressSheet && progressSheet.length > 0) {
+      setLastUpdated(new Date());
+    }
+  }, [progressSheet]);
 
   // regionリスト
   const regions = [...new Set(areaMaster.map(a => a.region))];
@@ -85,15 +93,34 @@ export default function ProgressSummary() {
 
   return (
     <div className="dashboard-container">
+      {/* 最終更新日時表示（absoluteをやめて右寄せ・下に余白） */}
+      <div style={{
+        fontSize: 13,
+        color: '#888',
+        background: 'rgba(255,255,255,0.85)',
+        borderRadius: 4,
+        padding: '2px 10px',
+        minWidth: '180px',
+        textAlign: 'right',
+        margin: '0 0 8px auto', // 右寄せ＋下に余白
+        width: 'fit-content'
+      }}>
+        {lastUpdated
+          ? `最終更新: ${dayjs(lastUpdated).format('YYYY/MM/DD HH:mm:ss')}`
+          : '　　　　　　　　　　　　'
+        }
+      </div>
       <div style={{ padding: 24, maxWidth: 480, margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <div>
-            <div style={{ fontSize: 15, color: '#888', marginBottom: 4 }}>貼り付け完了数</div>
-            <div style={{ fontSize: 36, fontWeight: 'bold', color: '#222' }}>{totalCompleted.toLocaleString()}<span style={{ fontSize: 18, color: '#888' }}>ヶ所</span></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+          {/* 左側：貼り付け完了数 */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <div style={{ fontSize: 15, color: '#888', marginBottom: 4, height: 22, display: 'flex', alignItems: 'center' }}>貼り付け完了数</div>
+            <div style={{ fontSize: 36, fontWeight: 'bold', color: '#222', marginTop: 22 }}>{totalCompleted.toLocaleString()}<span style={{ fontSize: 18, color: '#888' }}>ヶ所</span></div>
             <div style={{ color: '#aaa', fontSize: 13 }}>/ {total.toLocaleString()} ヶ所中</div>
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 15, color: '#888', marginBottom: 4 }}>貼り付け完了割合</div>
+          {/* 右側：貼り付け完了割合 */}
+          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ fontSize: 15, color: '#888', marginBottom: 4, height: 22, display: 'flex', alignItems: 'center' }}>貼り付け完了割合</div>
             <CircularProgress percent={progress} size={120} stroke={10} />
           </div>
         </div>
