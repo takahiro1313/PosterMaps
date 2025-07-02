@@ -8,12 +8,12 @@
 
 .map-container {
   width: 100%;
-  height: calc(100vh - 56px);
+  height: calc(100vh - 44px);
 }
 
 .nav-tabs {
   display: flex;
-  height: 56px;
+  height: 44px;
   background-color: #f8f9fa;
   border-bottom: 1px solid #dee2e6;
   margin: 0;
@@ -230,8 +230,8 @@
 }
 
 .heatmap-container, .dashboard-container {
-  height: calc(100vh - 56px);
-  margin-top: 56px;
+  height: calc(100vh - 44px);
+  margin-top: 44px;
   width: 100%;
   position: relative;
 }

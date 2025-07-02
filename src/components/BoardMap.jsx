@@ -108,7 +108,7 @@ export const BoardMap = () => {
       <div style={{
         position: 'absolute',
         width: '45%',
-        top: 66,
+        top: 55,
         right: 10,
         zIndex: 1300,
         display: 'flex',
@@ -154,7 +154,7 @@ export const BoardMap = () => {
       {/* 左上：更新ボタン */}
       <div style={{
         position: 'absolute',
-        top: 65,
+        top: 55,
         left: 10,
         zIndex: 1300,
         width: '45%',
@@ -182,7 +182,7 @@ export const BoardMap = () => {
           onClick={refreshData}
           disabled={loading}
         >
-          地図情報を更新する
+          地図情報を更新
         </button>
         <ProgressControl
           total={total}
@@ -208,25 +208,23 @@ export const BoardMap = () => {
         position: 'absolute',
         left: 10,
         bottom: 66,
-        height: 135,
         background: 'white',
         borderRadius: 6,
         boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-        padding: '12px 16px',
+        padding: '8px 8px',
         zIndex: 1200,
         fontSize: 13
       }}>
-        <div style={{ fontWeight: 'bold', marginBottom: 6 }}>マーカーの意味</div>
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
-          <img src={未完了} alt="未実施" style={{ width: 24, height: 24, marginRight: 8 }} />
+          <img src={未完了} alt="未実施" style={{ width: 24, height: 24, marginRight: 4 }} />
           <span>未実施</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
-          <img src={貼り付け完了} alt="貼り付け済み" style={{ width: 24, height: 24, marginRight: 8 }} />
-          <span>貼り付け済み</span>
+          <img src={貼り付け完了} alt="貼り付け済み" style={{ width: 24, height: 24, marginRight: 4 }} />
+          <span>完了</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <img src={破損} alt="破損" style={{ width: 24, height: 24, marginRight: 8 }} />
+          <img src={破損} alt="破損" style={{ width: 24, height: 24, marginRight: 4 }} />
           <span>破損</span>
         </div>
       </div>
