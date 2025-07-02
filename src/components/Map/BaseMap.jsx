@@ -45,36 +45,33 @@ export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom =
   const [heading, setHeading] = React.useState(null);
   const [locationEnabled, setLocationEnabled] = React.useState(false);
   const [showLocationModal, setShowLocationModal] = React.useState(true);
-  const [initialCenter, setInitialCenter] = React.useState(center);
-  const [mapInitialized, setMapInitialized] = React.useState(false);
 
   // 初回のみ位置情報利用の許可を確認
   React.useEffect(() => {
     // ページ初回表示時のみモーダル表示（デフォルトtrue）
   }, []);
 
-  // 現在地を取得して初期中心を設定
-  React.useEffect(() => {
+  // 地図初期化後に現在地を取得して移動
+  const moveToCurrentLocation = () => {
     if (!navigator.geolocation) {
       setLocationError('お使いのブラウザは位置情報をサポートしていません。');
       return;
     }
-
-    // 現在地を一度だけ取得して初期中心を設定
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
+      (position) => {
+        const { latitude, longitude } = position.coords;
         setCurrentLocation({ lat: latitude, lng: longitude });
-        setInitialCenter([latitude, longitude]);
+        if (mapRef && mapRef.current) {
+          mapRef.current.setView([latitude, longitude], 16);
+        }
         setLocationError(null);
       },
-      (err) => {
-        console.log('初期現在地取得に失敗しました:', err);
-        // エラーが発生してもデフォルトの中心を使用
+      (error) => {
+        setLocationError('現在地の取得に失敗しました');
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { enableHighAccuracy: true }
     );
-  }, []);
+  };
 
   // 現在地の常時取得＆自動追従（許可時のみ）
   React.useEffect(() => {
@@ -88,8 +85,8 @@ export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom =
         const { latitude, longitude } = pos.coords;
         setCurrentLocation({ lat: latitude, lng: longitude });
         setLocationError(null);
-        // 地図を現在地に追従（初期化後のみ）
-        if (mapRef && mapRef.current && mapInitialized) {
+        // 地図を現在地に追従
+        if (mapRef && mapRef.current) {
           mapRef.current.setView([latitude, longitude]);
         }
       },
@@ -99,7 +96,7 @@ export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom =
       { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
     );
     return () => navigator.geolocation.clearWatch(watchId);
-  }, [locationEnabled, mapRef, mapInitialized]);
+  }, [locationEnabled, mapRef]);
 
   // 端末の向き（方角）を取得（許可時のみ）
   React.useEffect(() => {
@@ -144,7 +141,12 @@ export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom =
               style={{
                 background: '#007bff', color: 'white', border: 'none', borderRadius: 4, padding: '10px 28px', fontSize: 16, fontWeight: 'bold', cursor: 'pointer', marginRight: 12
               }}
-              onClick={() => { setLocationEnabled(true); setShowLocationModal(false); }}
+              onClick={() => { 
+                setLocationEnabled(true); 
+                setShowLocationModal(false);
+                // モーダルを閉じた後に現在地に移動
+                setTimeout(() => moveToCurrentLocation(), 100);
+              }}
             >
               許可する
             </button>
@@ -160,7 +162,7 @@ export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom =
         </div>
       )}
       <MapContainer
-        center={initialCenter}
+        center={center}
         zoom={zoom}
         style={{ height: '100%', width: '100%' }}
         zoomControl={false}
@@ -169,7 +171,6 @@ export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom =
           if (mapRef) {
             mapRef.current = mapInstance;
           }
-          setMapInitialized(true);
         }}
         {...props}
       >
