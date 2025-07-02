@@ -225,7 +225,7 @@ export const BoardMap = () => {
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <img src={破損} alt="破損" style={{ width: 24, height: 24, marginRight: 4 }} />
-          <span>破損</span>
+          <span>トラブル</span>
         </div>
       </div>
       {/* マーカーだけローディング中インジケータ（スピナー） */}
