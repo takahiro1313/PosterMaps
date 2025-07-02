@@ -67,7 +67,7 @@ const ColorBar = () => {
   );
 };
 
-const GEOJSON_PATH = '/src/assets/N03-20240101_27.geojson';
+const GEOJSON_PATH = '/N03-20240101_27.geojson';
 
 function Dashboard() {
   const { progressSheet } = useGoogleSheetsDataContext();
