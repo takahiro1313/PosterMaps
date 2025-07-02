@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   fetchAreaData, 
   fetchProgressData, 
@@ -9,11 +9,9 @@ export const useGoogleSheetsData = () => {
   const [areaData, setAreaData] = useState([]);
   const [progressData, setProgressData] = useState({ total: 0, completed: 0, percentage: 0 });
   const [markers, setMarkers] = useState([]);
+  const [progressSheet, setProgressSheet] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // インクリメンタル表示用
-  const incrementalTimeout = useRef();
 
   const fetchAllData = async () => {
     try {
@@ -27,17 +25,8 @@ export const useGoogleSheetsData = () => {
         latestMarkersMap[row.areaNumber] = row; // 後勝ちで最新
       });
       const latestMarkers = Object.values(latestMarkersMap);
-      // 5件ずつインクリメンタルにsetMarkers
-      setMarkers([]);
-      let i = 0;
-      function addBatch() {
-        setMarkers(prev => [...prev, ...latestMarkers.slice(i, i+5)]);
-        i += 5;
-        if (i < latestMarkers.length) {
-          incrementalTimeout.current = setTimeout(addBatch, 100);
-        }
-      }
-      addBatch();
+      // 一気に全件setMarkers
+      setMarkers(latestMarkers);
       // areaData, progressDataも最新のみで再計算
       // areaData
       const areaMap = {};
@@ -60,6 +49,10 @@ export const useGoogleSheetsData = () => {
       const completed = latestMarkers.filter(m => m.status === '1').length;
       const percentage = total > 0 ? Math.round((completed / total) * 1000) / 10 : 0;
       setProgressData({ total, completed, percentage });
+      // progressSheetも取得
+      const progressRes = await fetch('/api/sheets-api?sheet=progress');
+      const progressJson = await progressRes.json();
+      setProgressSheet(progressJson);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -67,22 +60,20 @@ export const useGoogleSheetsData = () => {
     }
   };
 
+
   const refreshData = () => {
-    if (incrementalTimeout.current) clearTimeout(incrementalTimeout.current);
     fetchAllData();
   };
 
   useEffect(() => {
     fetchAllData();
-    return () => {
-      if (incrementalTimeout.current) clearTimeout(incrementalTimeout.current);
-    };
   }, []);
 
   return {
     areaData,
     progressData,
     markers,
+    progressSheet,
     loading,
     error,
     refreshData

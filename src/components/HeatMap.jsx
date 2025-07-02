@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useGoogleSheetsDataContext } from '../contexts/GoogleSheetsDataContext';
-import dayjs from 'dayjs';
 
 const OSAKA_CENTER = [34.6937, 135.5023];
 
@@ -72,19 +71,12 @@ const GEOJSON_PATH = '/N03-20240101_27.geojson';
 function Dashboard() {
   const { progressSheet } = useGoogleSheetsDataContext();
   const [geojson, setGeojson] = useState(null);
-  const [lastUpdated, setLastUpdated] = useState(null);
 
   useEffect(() => {
     fetch(GEOJSON_PATH)
       .then(res => res.json())
       .then(setGeojson);
   }, []);
-
-  useEffect(() => {
-    if (progressSheet && progressSheet.length > 0) {
-      setLastUpdated(new Date());
-    }
-  }, [progressSheet]);
 
   // city+wardごとの進捗率をprogressSheetから取得
   const getAreaProgress = (city, ward) => {
@@ -96,32 +88,27 @@ function Dashboard() {
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 1 }}>
-      <div style={{ position: 'absolute', top: 8, left: 16, zIndex: 2000, fontSize: 13, color: '#888', background: 'rgba(255,255,255,0.85)', borderRadius: 4, padding: '2px 10px' }}>
-        {lastUpdated && `最終更新: ${dayjs(lastUpdated).format('YYYY/MM/DD HH:mm:ss')}`}
-      </div>
-      <div style={{ position: 'absolute', inset: 0 }}>
-        <MapContainer center={OSAKA_CENTER} zoom={11} style={{ height: '100%', width: '100%' }}>
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          {geojson && (
-            <GeoJSON
-              data={geojson}
-              style={feature => {
-                const city = feature.properties.N03_004;
-                const ward = feature.properties.N03_005;
-                let progress = getAreaProgress(city, ward);
-                return {
-                  color: 'black',
-                  weight: 2,
-                  fillColor: getProgressColor(progress),
-                  fillOpacity: 0.7
-                };
-              }}
-            />
-          )}
-        </MapContainer>
-        <ColorBar />
-      </div>
+    <div className="heatmap-container">
+      <MapContainer center={OSAKA_CENTER} zoom={10} style={{ height: '100%', width: '100%' }}>
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        {geojson && (
+          <GeoJSON
+            data={geojson}
+            style={feature => {
+              const city = feature.properties.N03_004;
+              const ward = feature.properties.N03_005;
+              let progress = getAreaProgress(city, ward);
+              return {
+                color: 'black',
+                weight: 2,
+                fillColor: getProgressColor(progress),
+                fillOpacity: 0.7
+              };
+            }}
+          />
+        )}
+      </MapContainer>
+      <ColorBar />
     </div>
   );
 }
