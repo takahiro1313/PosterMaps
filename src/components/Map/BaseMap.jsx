@@ -46,8 +46,6 @@ export const BaseMap = ({ mapRef, children, center: _center, zoom = 12, tileLaye
   const [heading, setHeading] = React.useState(null);
   const [locationEnabled, setLocationEnabled] = React.useState(false);
   const [showLocationModal, setShowLocationModal] = React.useState(true);
-  const [initialCenter, setInitialCenter] = React.useState(center);
-  const [mapInitialized, setMapInitialized] = React.useState(false);
 
   // 初回のみ現在地取得を試みる
   React.useEffect(() => {
@@ -67,29 +65,6 @@ export const BaseMap = ({ mapRef, children, center: _center, zoom = 12, tileLaye
     );
   }, []);
 
-  // 現在地を取得して初期中心を設定
-  React.useEffect(() => {
-    if (!navigator.geolocation) {
-      setLocationError('お使いのブラウザは位置情報をサポートしていません。');
-      return;
-    }
-
-    // 現在地を一度だけ取得して初期中心を設定
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        setCurrentLocation({ lat: latitude, lng: longitude });
-        setInitialCenter([latitude, longitude]);
-        setLocationError(null);
-      },
-      (err) => {
-        console.log('初期現在地取得に失敗しました:', err);
-        // エラーが発生してもデフォルトの中心を使用
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  }, []);
-
   // 現在地の常時取得＆自動追従（許可時のみ）
   React.useEffect(() => {
     if (!locationEnabled) return;
@@ -102,8 +77,8 @@ export const BaseMap = ({ mapRef, children, center: _center, zoom = 12, tileLaye
         const { latitude, longitude } = pos.coords;
         setCurrentLocation({ lat: latitude, lng: longitude });
         setLocationError(null);
-        // 地図を現在地に追従（初期化後のみ）
-        if (mapRef && mapRef.current && mapInitialized) {
+        // 地図を現在地に追従
+        if (mapRef && mapRef.current) {
           mapRef.current.setView([latitude, longitude]);
         }
       },
@@ -113,7 +88,7 @@ export const BaseMap = ({ mapRef, children, center: _center, zoom = 12, tileLaye
       { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
     );
     return () => navigator.geolocation.clearWatch(watchId);
-  }, [locationEnabled, mapRef, mapInitialized]);
+  }, [locationEnabled, mapRef]);
 
   // 端末の向き（方角）を取得（許可時のみ）
   React.useEffect(() => {
@@ -174,7 +149,7 @@ export const BaseMap = ({ mapRef, children, center: _center, zoom = 12, tileLaye
         </div>
       )}
       <MapContainer
-        center={initialCenter}
+        center={center}
         zoom={zoom}
         style={{ height: '100%', width: '100%' }}
         zoomControl={false}
@@ -183,7 +158,6 @@ export const BaseMap = ({ mapRef, children, center: _center, zoom = 12, tileLaye
           if (mapRef) {
             mapRef.current = mapInstance;
           }
-          setMapInitialized(true);
         }}
         {...props}
       >
