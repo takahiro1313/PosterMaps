@@ -54,6 +54,16 @@ const svgIcon = (svgPath, size = 32) => L.icon({
   popupAnchor: [0, -size],
 });
 
+// グループのstatusからマーカー色を決定
+const getGroupMarkerStatus = (group) => {
+  // すべて完了
+  if (group.every(m => m.status === '1')) return '1';
+  // 1つでも破損があれば破損
+  if (group.some(m => m.status === '2')) return '2';
+  // それ以外は未完了
+  return '0';
+};
+
 export const MarkerLayer = ({ markers }) => {
   const [activePopup, setActivePopup] = useState(null); // { group, lat, lng, screenPos }
   const map = useMap();
@@ -147,13 +157,14 @@ export const MarkerLayer = ({ markers }) => {
           statusText: getStatusText(marker.status),
           formUrl: getFormUrlWithStatus(marker.areaNumber, marker.status)
         }));
-        // keyをlat,lng,groupIdxで完全ユニークに
+        // グループのstatusで色を決定
+        const groupStatus = getGroupMarkerStatus(group);
         const markerKey = `${lat},${lng},${groupIdx}`;
         return (
           <Marker
             key={markerKey}
             position={[lat, lng]}
-            icon={getMarkerIcon(group[0].status)}
+            icon={getMarkerIcon(groupStatus)}
             eventHandlers={{
               click: (e) => {
                 console.log('マーカークリック', { lat, lng, groupWithExtras });
