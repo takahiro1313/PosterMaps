@@ -38,8 +38,9 @@ const CurrentLocationMarker = ({ location }) => {
   );
 };
 
-export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom = 12, tileLayer = 'google', ...props }) => {
+export const BaseMap = ({ mapRef, children, center: _center, zoom = 12, tileLayer = 'google', ...props }) => {
   const selectedTileLayer = TILE_LAYERS[tileLayer];
+  const [center, setCenter] = React.useState(_center || DEFAULT_MAP_CONFIG.center);
   const [currentLocation, setCurrentLocation] = React.useState(null);
   const [locationError, setLocationError] = React.useState(null);
   const [heading, setHeading] = React.useState(null);
@@ -48,9 +49,22 @@ export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom =
   const [initialCenter, setInitialCenter] = React.useState(center);
   const [mapInitialized, setMapInitialized] = React.useState(false);
 
-  // 初回のみ位置情報利用の許可を確認
+  // 初回のみ現在地取得を試みる
   React.useEffect(() => {
-    // ページ初回表示時のみモーダル表示（デフォルトtrue）
+    if (!navigator.geolocation) {
+      // 位置情報非対応なら何もしない（デフォルトcenterのまま）
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setCenter([latitude, longitude]);
+      },
+      (err) => {
+        // 失敗時は何もしない（デフォルトcenterのまま）
+      },
+      { enableHighAccuracy: true }
+    );
   }, []);
 
   // 現在地を取得して初期中心を設定
