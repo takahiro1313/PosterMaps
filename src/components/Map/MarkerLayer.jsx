@@ -206,58 +206,78 @@ export const MarkerLayer = ({ markers }) => {
               この場所には複数の掲示板があります
             </div>
           )}
-          {activePopup.group.map((marker, idx) => (
-            <div key={marker.areaNumber} style={{ borderBottom: idx < activePopup.group.length-1 ? '1px solid #eee' : 'none', marginBottom: 8, paddingBottom: 8 }}>
-              <div style={{ fontWeight: 'bold', fontSize: 15, marginBottom: 4 }}>{marker.place || marker.name}</div>
-              <div style={{ fontSize: 13, marginBottom: 2 }}><strong>投票区番号:</strong> {marker.areaNumber}</div>
-              <div style={{ fontSize: 13, marginBottom: 2 }}><strong>ステータス:</strong> {marker.statusText}</div>
-              <div style={{ fontSize: 13, marginBottom: 2, marginTop: 8 }}><strong>💡設置場所のヒント:</strong><br/>{marker.address}</div>　
-              <div style={{ fontSize: 13, marginBottom: 2, marginTop: 8 }}><strong>備考:</strong> {marker.note}</div>
-              <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>座標: {marker.lat?.toFixed(4)}, {marker.lng?.toFixed(4)}</div>
-              <a
-                href={marker.formUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-block',
-                  padding: '6px 12px',
-                  backgroundColor: '#4285f4',
-                  color: 'white',
-                  textDecoration: 'none',
-                  borderRadius: '4px',
-                  fontSize: '12px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  marginTop: 8,
-                  width: '100%',
-                  textAlign: 'center'
-                }}
-              >
-                📝 フォームに報告
-              </a>
-              <a
-                href={`https://www.google.com/maps?q=${marker.lat},${marker.lng}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-block',
-                  padding: '6px 12px',
-                  backgroundColor: '#4285f4',
-                  color: 'white',
-                  textDecoration: 'none',
-                  borderRadius: '4px',
-                  fontSize: '12px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  marginTop: 8,
-                  width: '100%',
-                  textAlign: 'center'
-                }}
-              >
-                🗺️ Googleマップで開く
-              </a>
-            </div>
-          ))}
+          {activePopup.group.map((marker, idx) => {
+            // 備考を設置場所のヒントに統合
+            const hint = marker.note
+              ? marker.address
+                ? `${marker.address} ${marker.note}`
+                : marker.note
+              : marker.address;
+            return (
+              <div key={marker.areaNumber} style={{ borderBottom: idx < activePopup.group.length-1 ? '1px solid #eee' : 'none', marginBottom: 8, paddingBottom: 8 }}>
+                <div style={{ fontWeight: 'bold', fontSize: 15, marginBottom: 4 }}>{marker.place || marker.name}</div>
+                <div style={{ fontSize: 13, marginBottom: 2 }}><strong>投票区番号:</strong> {marker.areaNumber}</div>
+                <div
+                  style={{
+                    fontSize: 13,
+                    marginBottom: 2,
+                    fontWeight: 'bold',
+                    color: getMarkerColor(marker.status)
+                  }}
+                >
+                  <strong>ステータス:</strong> {marker.statusText}
+                </div>
+                <div style={{ fontSize: 13, marginBottom: 2, marginTop: 8 }}>
+                  <strong>💡設置場所のヒント:</strong>
+                  <br />
+                  {hint}
+                </div>
+                <div style={{ fontSize: 12, color: '#666',  marginTop: 8,marginBottom: 4 }}>座標: {marker.lat?.toFixed(4)}, {marker.lng?.toFixed(4)}</div>
+                <a
+                  href={marker.formUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-block',
+                    padding: '6px 12px',
+                    backgroundColor: '#4285f4',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    marginTop: 8,
+                    width: '100%',
+                    textAlign: 'center'
+                  }}
+                >
+                  📝 フォームに報告
+                </a>
+                <a
+                  href={`https://www.google.com/maps?q=${marker.lat},${marker.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-block',
+                    padding: '6px 12px',
+                    backgroundColor: '#4285f4',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    marginTop: 8,
+                    width: '100%',
+                    textAlign: 'center'
+                  }}
+                >
+                  🗺️ Googleマップで開く
+                </a>
+              </div>
+            );
+          })}
         </div>
       )}
     </>
