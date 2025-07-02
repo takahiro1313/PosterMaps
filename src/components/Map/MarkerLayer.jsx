@@ -174,9 +174,9 @@ export const MarkerLayer = ({ markers }) => {
       {activePopup && (
         <div
           style={{
-            position: 'absolute',
-            left: activePopup.screenPos?.x ?? 0,
-            top: (activePopup.screenPos?.y ?? 0) - 20,
+            position: 'fixed',
+            left: '50%',
+            top: '50%',
             zIndex: 2000,
             background: 'white',
             borderRadius: 8,
@@ -184,7 +184,7 @@ export const MarkerLayer = ({ markers }) => {
             minWidth: 260,
             maxWidth: 320,
             padding: 16,
-            transform: 'translate(-50%, -100%)',
+            transform: 'translate(-50%, -50%)',
           }}
         >
           <button
