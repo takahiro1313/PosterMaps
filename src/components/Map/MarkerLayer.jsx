@@ -144,13 +144,8 @@ export const MarkerLayer = ({ markers }) => {
         const isIndividual = mode === 'individual' && group.length === 1;
         const groupWithExtras = group.map(marker => ({
           ...marker,
-<<<<<<< HEAD
           statusText: getStatusText(marker.status),
           formUrl: getFormUrlWithStatus(marker.areaNumber, marker.status)
-=======
-          statusText: isIndividual ? getStatusText(marker.status) : '',
-          formUrl: isIndividual ? getFormUrlWithStatus(marker.areaNumber, marker.status) : ''
->>>>>>> 90a7ce6ded56694308e0f345a420ee1066afc410
         }));
         // keyをlat,lng,groupIdxで完全ユニークに
         const markerKey = `${lat},${lng},${groupIdx}`;
@@ -161,18 +156,12 @@ export const MarkerLayer = ({ markers }) => {
             icon={getMarkerIcon(group[0].status)}
             eventHandlers={{
               click: (e) => {
-<<<<<<< HEAD
                 console.log('マーカークリック', { lat, lng, groupWithExtras });
                 if (isIndividual || group.length >= 1) {
                   const screenPos = map ? map.latLngToContainerPoint([lat, lng]) : { x: 0, y: 0 };
                   const popupData = { group: groupWithExtras, lat, lng, screenPos };
                   console.log('setActivePopupに渡すデータ', popupData);
                   setActivePopup(popupData);
-=======
-                if (isIndividual) {
-                  const screenPos = map ? map.latLngToContainerPoint([lat, lng]) : { x: 0, y: 0 };
-                  setActivePopup({ group: groupWithExtras, lat, lng, screenPos });
->>>>>>> 90a7ce6ded56694308e0f345a420ee1066afc410
                 } else {
                   setActivePopup(null);
                 }
@@ -181,13 +170,13 @@ export const MarkerLayer = ({ markers }) => {
           />
         );
       })}
-      {/* カスタムパネル（マーカーの上に絶対配置） */}
-      {activePopup && mode === 'individual' && activePopup.group.length === 1 && (
+      {/* カスタムパネル（マーカーの上に絶対配置）複数ある場合にも対応 */}
+      {activePopup && (
         <div
           style={{
-            position: 'absolute',
-            left: activePopup.screenPos?.x ?? 0,
-            top: (activePopup.screenPos?.y ?? 0) - 20,
+            position: 'fixed',
+            left: '50%',
+            top: '50%',
             zIndex: 2000,
             background: 'white',
             borderRadius: 8,
@@ -195,7 +184,7 @@ export const MarkerLayer = ({ markers }) => {
             minWidth: 260,
             maxWidth: 320,
             padding: 16,
-            transform: 'translate(-50%, -100%)',
+            transform: 'translate(-50%, -50%)',
           }}
         >
           <button
@@ -212,7 +201,6 @@ export const MarkerLayer = ({ markers }) => {
             }}
             aria-label="閉じる"
           >×</button>
-<<<<<<< HEAD
           {activePopup.group.length > 1 && (
             <div style={{ fontWeight: 'bold', marginBottom: 8, color: '#c00' }}>
               この場所には複数の掲示板があります
@@ -223,7 +211,7 @@ export const MarkerLayer = ({ markers }) => {
               <div style={{ fontWeight: 'bold', fontSize: 15, marginBottom: 4 }}>{marker.place || marker.name}</div>
               <div style={{ fontSize: 13, marginBottom: 2 }}><strong>投票区番号:</strong> {marker.areaNumber}</div>
               <div style={{ fontSize: 13, marginBottom: 2 }}><strong>ステータス:</strong> {marker.statusText}</div>
-              <div style={{ fontSize: 13, marginBottom: 2 }}><strong>詳細:</strong> {marker.address}</div>
+              <div style={{ fontSize: 13, marginBottom: 2 }}><strong>詳細:</strong> {marker.address}</div>　
               <div style={{ fontSize: 13, marginBottom: 2 }}><strong>備考:</strong> {marker.note}</div>
               <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>座標: {marker.lat?.toFixed(4)}, {marker.lng?.toFixed(4)}</div>
               <a
@@ -247,38 +235,6 @@ export const MarkerLayer = ({ markers }) => {
               </a>
             </div>
           ))}
-=======
-          {activePopup.group.map((marker, idx) => {
-            return (
-              <div key={marker.areaNumber} style={{ borderBottom: idx < activePopup.group.length-1 ? '1px solid #eee' : 'none', marginBottom: 8, paddingBottom: 8 }}>
-                <div style={{ fontWeight: 'bold', fontSize: 15, marginBottom: 4 }}>投票区番号: {marker.areaNumber}</div>
-                <div style={{ fontWeight: 'bold', fontSize: 15, marginBottom: 4 }}>ステータス: <span style={{ fontWeight: 'normal' }}>{marker.statusText}</span></div>
-                <div style={{ fontWeight: 'bold', fontSize: 15, marginBottom: 4 }}>住所: <span style={{ fontWeight: 'normal' }}>{marker.address}</span></div>
-                <div style={{ fontWeight: 'bold', fontSize: 15, marginBottom: 4 }}>備考: <span style={{ fontWeight: 'normal' }}>{marker.note}</span></div>
-                <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>座標: {marker.lat?.toFixed(4)}, {marker.lng?.toFixed(4)}</div>
-                <a
-                  href={marker.formUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'inline-block',
-                    padding: '6px 12px',
-                    backgroundColor: '#4285f4',
-                    color: 'white',
-                    textDecoration: 'none',
-                    borderRadius: '4px',
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    marginTop: 8
-                  }}
-                >
-                  📝 フォームに報告
-                </a>
-              </div>
-            );
-          })}
->>>>>>> 90a7ce6ded56694308e0f345a420ee1066afc410
         </div>
       )}
     </>
