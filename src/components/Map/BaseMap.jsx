@@ -45,10 +45,35 @@ export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom =
   const [heading, setHeading] = React.useState(null);
   const [locationEnabled, setLocationEnabled] = React.useState(false);
   const [showLocationModal, setShowLocationModal] = React.useState(true);
+  const [initialCenter, setInitialCenter] = React.useState(center);
+  const [mapInitialized, setMapInitialized] = React.useState(false);
 
   // 初回のみ位置情報利用の許可を確認
   React.useEffect(() => {
     // ページ初回表示時のみモーダル表示（デフォルトtrue）
+  }, []);
+
+  // 現在地を取得して初期中心を設定
+  React.useEffect(() => {
+    if (!navigator.geolocation) {
+      setLocationError('お使いのブラウザは位置情報をサポートしていません。');
+      return;
+    }
+
+    // 現在地を一度だけ取得して初期中心を設定
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setCurrentLocation({ lat: latitude, lng: longitude });
+        setInitialCenter([latitude, longitude]);
+        setLocationError(null);
+      },
+      (err) => {
+        console.log('初期現在地取得に失敗しました:', err);
+        // エラーが発生してもデフォルトの中心を使用
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   }, []);
 
   // 現在地の常時取得＆自動追従（許可時のみ）
@@ -63,8 +88,8 @@ export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom =
         const { latitude, longitude } = pos.coords;
         setCurrentLocation({ lat: latitude, lng: longitude });
         setLocationError(null);
-        // 地図を現在地に追従
-        if (mapRef && mapRef.current) {
+        // 地図を現在地に追従（初期化後のみ）
+        if (mapRef && mapRef.current && mapInitialized) {
           mapRef.current.setView([latitude, longitude]);
         }
       },
@@ -74,7 +99,7 @@ export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom =
       { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
     );
     return () => navigator.geolocation.clearWatch(watchId);
-  }, [locationEnabled, mapRef]);
+  }, [locationEnabled, mapRef, mapInitialized]);
 
   // 端末の向き（方角）を取得（許可時のみ）
   React.useEffect(() => {
@@ -135,7 +160,7 @@ export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom =
         </div>
       )}
       <MapContainer
-        center={center}
+        center={initialCenter}
         zoom={zoom}
         style={{ height: '100%', width: '100%' }}
         zoomControl={false}
@@ -144,6 +169,7 @@ export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom =
           if (mapRef) {
             mapRef.current = mapInstance;
           }
+          setMapInitialized(true);
         }}
         {...props}
       >
