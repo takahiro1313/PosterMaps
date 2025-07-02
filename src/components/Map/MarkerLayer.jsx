@@ -170,7 +170,7 @@ export const MarkerLayer = ({ markers }) => {
           />
         );
       })}
-      {/* カスタムパネル（マーカーの上に絶対配置） */}
+      {/* カスタムパネル（マーカーの上に絶対配置）複数ある場合にも対応 */}
       {activePopup && (
         <div
           style={{
@@ -211,7 +211,7 @@ export const MarkerLayer = ({ markers }) => {
               <div style={{ fontWeight: 'bold', fontSize: 15, marginBottom: 4 }}>{marker.place || marker.name}</div>
               <div style={{ fontSize: 13, marginBottom: 2 }}><strong>投票区番号:</strong> {marker.areaNumber}</div>
               <div style={{ fontSize: 13, marginBottom: 2 }}><strong>ステータス:</strong> {marker.statusText}</div>
-              <div style={{ fontSize: 13, marginBottom: 2 }}><strong>詳細:</strong> {marker.address}</div>
+              <div style={{ fontSize: 13, marginBottom: 2 }}><strong>詳細:</strong> {marker.address}</div>　
               <div style={{ fontSize: 13, marginBottom: 2 }}><strong>備考:</strong> {marker.note}</div>
               <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>座標: {marker.lat?.toFixed(4)}, {marker.lng?.toFixed(4)}</div>
               <a
