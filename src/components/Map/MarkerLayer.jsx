@@ -228,10 +228,33 @@ export const MarkerLayer = ({ markers }) => {
                   fontSize: '12px',
                   fontWeight: 'bold',
                   cursor: 'pointer',
-                  marginTop: 8
+                  marginTop: 8,
+                  width: '100%',
+                  textAlign: 'center'
                 }}
               >
                 📝 フォームに報告
+              </a>
+              <a
+                href={`https://www.google.com/maps?q=${marker.lat},${marker.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-block',
+                  padding: '6px 12px',
+                  backgroundColor: '#4285f4',
+                  color: 'white',
+                  textDecoration: 'none',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  marginTop: 8,
+                  width: '100%',
+                  textAlign: 'center'
+                }}
+              >
+                🗺️ Googleマップで開く
               </a>
             </div>
           ))}
