@@ -38,6 +38,17 @@ const CurrentLocationMarker = ({ location }) => {
   );
 };
 
+// centerが更新されたときに地図の中心を移動するコンポーネント
+function CenterUpdater({ center }) {
+  const map = useMap();
+  React.useEffect(() => {
+    if (center && map) {
+      map.setView(center);
+    }
+  }, [center, map]);
+  return null;
+}
+
 export const BaseMap = ({ mapRef, children, center: _center, zoom = 12, tileLayer = 'google', ...props }) => {
   const selectedTileLayer = TILE_LAYERS[tileLayer];
   const [center, setCenter] = React.useState(_center || DEFAULT_MAP_CONFIG.center);
@@ -161,6 +172,7 @@ export const BaseMap = ({ mapRef, children, center: _center, zoom = 12, tileLaye
         }}
         {...props}
       >
+        <CenterUpdater center={center} />
         <TileLayer
           url={selectedTileLayer.url}
           attribution={selectedTileLayer.attribution}
