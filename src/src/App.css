@@ -1,0 +1,237 @@
+#root {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+.map-container {
+  width: 100%;
+  height: calc(100vh - 56px);
+}
+
+.nav-tabs {
+  display: flex;
+  height: 56px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-tab {
+  flex: 1;
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
+  transition: all 0.2s ease;
+}
+
+.nav-tab:hover {
+  background-color: #e9ecef;
+}
+
+.nav-tab.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.layer-control {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 10px;
+  z-index: 1000;
+}
+
+.layer-control-title {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.layer-control-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.layer-button {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  font-size: 11px;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+.layer-button:hover {
+  background-color: #f8f9fa;
+}
+
+.layer-button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.progress-control {
+  position: absolute;
+  top: 100px;
+  left: 10px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 12px;
+  z-index: 1000;
+  min-width: 200px;
+}
+
+.progress-title {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 2px;
+  color: #333;
+}
+
+.progress-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.progress-numbers {
+  font-size: 11px;
+  color: #666;
+}
+
+.progress-percentage {
+  font-size: 14px;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background-color: #e9ecef;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #007bff;
+  transition: width 0.3s ease;
+}
+
+.summary-legend {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 12px;
+  z-index: 1000;
+}
+
+.legend-title {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.legend-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.legend-color {
+  width: 16px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.vote-info {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 12px;
+  z-index: 1000;
+}
+
+.vote-title {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.vote-description {
+  font-size: 11px;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .nav-tab {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+  
+  .layer-control,
+  .progress-control,
+  .summary-legend,
+  .vote-info {
+    font-size: 10px;
+  }
+  
+  .progress-control {
+    min-width: 160px;
+    top: 10px;
+    left: 10px;
+    bottom: unset;
+  }
+}
+
+.nav-tabs-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  z-index: 2000;
+}
+
+.map-content {
+  /* padding-top: 56px;  削除 */
+}
+
+.heatmap-container, .dashboard-container {
+  height: calc(100vh - 56px);
+  margin-top: 56px;
+  width: 100%;
+  position: relative;
+}
