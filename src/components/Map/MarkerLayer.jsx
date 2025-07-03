@@ -196,6 +196,8 @@ export const MarkerLayer = ({ markers }) => {
             maxWidth: 320,
             padding: 16,
             transform: 'translate(-50%, -50%)',
+            maxHeight: '90vh',  
+            overflowY: 'auto', 
           }}
         >
           <button
