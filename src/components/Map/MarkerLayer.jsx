@@ -184,6 +184,8 @@ export const MarkerLayer = ({ markers }) => {
       {/* カスタムパネル（マーカーの上に絶対配置）複数ある場合にも対応 */}
       {activePopup && (
         <div
+          onTouchMove={e => e.stopPropagation()}
+          onWheel={e => e.stopPropagation()}
           style={{
             position: 'fixed',
             left: '50%',
