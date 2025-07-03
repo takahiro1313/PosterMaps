@@ -223,11 +223,7 @@ export const MarkerLayer = ({ markers }) => {
           )}
           {activePopup.group.map((marker, idx) => {
             // 備考を設置場所のヒントに統合
-            const hint = marker.note
-              ? marker.address
-                ? `${marker.address} ${marker.note}`
-                : marker.note
-              : marker.address;
+            const hint = marker.address;
             return (
               <div key={marker.areaNumber} style={{ borderBottom: idx < activePopup.group.length-1 ? '1px solid #eee' : 'none', marginBottom: 8, paddingBottom: 8 }}>
                 <div style={{ fontWeight: 'bold', fontSize: 15, marginBottom: 4 }}>{marker.place || marker.name}</div>
