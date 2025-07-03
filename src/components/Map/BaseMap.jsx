@@ -38,40 +38,43 @@ const CurrentLocationMarker = ({ location }) => {
   );
 };
 
-export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom = 12, tileLayer = 'google', ...props }) => {
+// centerが更新されたときに地図の中心を移動するコンポーネント
+function CenterUpdater({ center }) {
+  const map = useMap();
+  React.useEffect(() => {
+    if (center && map) {
+      map.setView(center);
+    }
+  }, [center, map]);
+  return null;
+}
+
+export const BaseMap = ({ mapRef, children, center: _center, zoom = 12, tileLayer = 'google', ...props }) => {
   const selectedTileLayer = TILE_LAYERS[tileLayer];
+  const [center, setCenter] = React.useState(_center || DEFAULT_MAP_CONFIG.center);
   const [currentLocation, setCurrentLocation] = React.useState(null);
   const [locationError, setLocationError] = React.useState(null);
   const [heading, setHeading] = React.useState(null);
   const [locationEnabled, setLocationEnabled] = React.useState(false);
   const [showLocationModal, setShowLocationModal] = React.useState(true);
 
-  // 初回のみ位置情報利用の許可を確認
+  // 初回のみ現在地取得を試みる
   React.useEffect(() => {
-    // ページ初回表示時のみモーダル表示（デフォルトtrue）
-  }, []);
-
-  // 地図初期化後に現在地を取得して移動
-  const moveToCurrentLocation = () => {
     if (!navigator.geolocation) {
-      setLocationError('お使いのブラウザは位置情報をサポートしていません。');
+      // 位置情報非対応なら何もしない（デフォルトcenterのまま）
       return;
     }
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setCurrentLocation({ lat: latitude, lng: longitude });
-        if (mapRef && mapRef.current) {
-          mapRef.current.setView([latitude, longitude], 16);
-        }
-        setLocationError(null);
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setCenter([latitude, longitude]);
       },
-      (error) => {
-        setLocationError('現在地の取得に失敗しました');
+      (err) => {
+        // 失敗時は何もしない（デフォルトcenterのまま）
       },
       { enableHighAccuracy: true }
     );
-  };
+  },[]);
 
   // 現在地の常時取得＆自動追従（許可時のみ）
   React.useEffect(() => {
@@ -174,6 +177,7 @@ export const BaseMap = ({ mapRef, children, center = [34.6937, 135.5023], zoom =
         }}
         {...props}
       >
+        <CenterUpdater center={center} />
         <TileLayer
           url={selectedTileLayer.url}
           attribution={selectedTileLayer.attribution}
