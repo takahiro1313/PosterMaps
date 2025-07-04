@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapContainer, TileLayer, useMap, CircleMarker, Popup, Marker, useMapEvent } from 'react-leaflet';
+import { MapContainer, TileLayer, useMap, CircleMarker, Popup, Marker } from 'react-leaflet';
 import L from 'leaflet';
 import { DEFAULT_MAP_CONFIG, TILE_LAYERS } from '../../utils/mapConfig';
 import 'leaflet/dist/leaflet.css';
@@ -47,55 +47,6 @@ function CenterUpdater({ center }) {
     }
   }, [center, map]);
   return null;
-}
-
-// 方角インジケーター（扇形）を現在地マーカーに重ねて表示するコンポーネント
-function HeadingIndicator({ mapRef, location, heading }) {
-  const [, setRerender] = React.useState(0);
-  // 地図のパン・ズーム時に再描画
-  useMapEvent('move', () => setRerender(v => v + 1));
-  useMapEvent('zoom', () => setRerender(v => v + 1));
-
-  if (!location || heading == null || !mapRef?.current) return null;
-  const map = mapRef.current;
-  const point = map.latLngToContainerPoint([location.lat, location.lng]);
-  const size = 80; // SVGサイズ
-  const angle = 60; // 扇形の角度
-
-  // SVGパス生成
-  const startAngle = -angle / 2;
-  const endAngle = angle / 2;
-  const r = 35;
-  const x1 = size/2 + r * Math.cos((Math.PI/180) * startAngle);
-  const y1 = size/2 + r * Math.sin((Math.PI/180) * startAngle);
-  const x2 = size/2 + r * Math.cos((Math.PI/180) * endAngle);
-  const y2 = size/2 + r * Math.sin((Math.PI/180) * endAngle);
-  const d = `
-    M ${size/2} ${size/2}
-    L ${x1} ${y1}
-    A ${r} ${r} 0 0 1 ${x2} ${y2}
-    Z
-  `;
-
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        left: point.x - size/2,
-        top: point.y - size/2,
-        pointerEvents: 'none',
-        width: size,
-        height: size,
-        zIndex: 1000,
-        transform: `rotate(${heading}deg)`,
-        transition: 'transform 0.2s',
-      }}
-    >
-      <svg width={size} height={size}>
-        <path d={d} fill="rgba(0,123,255,0.25)" />
-      </svg>
-    </div>
-  );
 }
 
 export const BaseMap = ({ mapRef, children, center: _center, zoom = 12, tileLayer = 'google', ...props }) => {
@@ -158,20 +109,8 @@ export const BaseMap = ({ mapRef, children, center: _center, zoom = 12, tileLaye
         setHeading(event.alpha);
       }
     };
-    // iOS対応
-    if (
-      typeof window.DeviceOrientationEvent !== 'undefined' &&
-      typeof window.DeviceOrientationEvent.requestPermission === 'function'
-    ) {
-      window.DeviceOrientationEvent.requestPermission().then((response) => {
-        if (response === 'granted') {
-          window.addEventListener('deviceorientation', handleOrientation, true);
-        }
-      });
-    } else {
-      window.addEventListener('deviceorientation', handleOrientation, true);
-    }
-    return () => window.removeEventListener('deviceorientation', handleOrientation, true);
+    window.addEventListener('deviceorientation', handleOrientation, true);
+    return () => window.removeEventListener('deviceorientation', handleOrientation);
   }, [locationEnabled]);
 
   return (
@@ -248,10 +187,6 @@ export const BaseMap = ({ mapRef, children, center: _center, zoom = 12, tileLaye
         {locationEnabled && <CurrentLocationMarker location={currentLocation} />}
         {children}
       </MapContainer>
-      {/* 方角インジケーターを地図の上に重ねて表示 */}
-      {locationEnabled && currentLocation && heading != null && (
-        <HeadingIndicator mapRef={mapRef} location={currentLocation} heading={heading} />
-      )}
       {locationError && (
         <div style={{
           position: 'absolute',
